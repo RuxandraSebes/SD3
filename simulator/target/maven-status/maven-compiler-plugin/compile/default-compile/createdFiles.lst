@@ -1,0 +1,3 @@
+com\example\simulator\service\SimulationService.class
+com\example\simulator\config\RabbitMQConfig.class
+com\example\simulator\DeviceSimulatorApplication.class

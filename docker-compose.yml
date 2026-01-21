@@ -1,0 +1,295 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: always
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.yml:/etc/traefik/traefik.yml:ro"
+      - "./dynamic:/etc/traefik/dynamic:ro"
+      - "./logs:/var/log/traefik"
+    networks:
+      - demo_net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    networks:
+      - demo_net
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  people-db:
+    image: postgres
+    container_name: people-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: people
+    ports:
+      - "5433:5432"
+    volumes:
+      - people-data:/var/lib/postgresql/data
+    networks:
+      - demo_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d people" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  devices-db:
+    image: postgres
+    container_name: devices-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: devices
+    ports:
+      - "5434:5432"
+    volumes:
+      - devices-data:/var/lib/postgresql/data
+    networks:
+      - demo_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d devices" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-db:
+    image: postgres
+    container_name: auth-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: auth
+    ports:
+      - "5435:5432"
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+    networks:
+      - demo_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d auth" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  monitoring-db:
+    image: postgres
+    container_name: monitoring-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: monitoring
+    ports:
+      - "5436:5432" 
+    volumes:
+      - monitoring-data:/var/lib/postgresql/data
+      # - ./monitoring-init.sql:/docker-entrypoint-initdb.d/init.sql 
+    networks:
+      - demo_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d monitoring" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  people:
+    image: backend-image-people
+    build:
+      context: ./demoP
+      dockerfile: Dockerfile
+    container_name: people
+    environment:
+      - DB_IP=people-db
+      - DB_PORT=5432
+      - DB_DBNAME=people
+      - DB_USER=postgres
+      - DB_PASSWORD=root
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=admin123
+      - QUEUE_PEOPLE=queuePeople
+      - QUEUE_DELETE=queueDelete
+      - QUEUE_DEVICES=queueDevices
+    depends_on:
+      people-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - demo_net
+    restart: on-failure
+
+  devices:
+    image: backend-image-devices
+    build:
+      context: ./demoD
+      dockerfile: Dockerfile
+    container_name: devices
+    environment:
+      - DB_IP=devices-db
+      - DB_PORT=5432
+      - DB_DBNAME=devices
+      - DB_USER=postgres
+      - DB_PASSWORD=root
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=admin123
+      - QUEUE_DEVICES=queueDevices
+      - SYNC_EXCHANGE=sync.exchange
+    depends_on:
+      devices-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - demo_net
+    restart: on-failure
+
+  auth:
+    image: backend-image-auth
+    build:
+      context: ./demoA
+      dockerfile: Dockerfile
+    container_name: auth
+    environment:
+      - DB_IP=auth-db
+      - DB_PORT=5432
+      - DB_DBNAME=auth
+      - DB_USER=postgres
+      - DB_PASSWORD=root
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=admin123
+      - QUEUE_PEOPLE=queuePeople
+      - QUEUE_DELETE=queueDelete
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - demo_net
+    restart: on-failure
+
+  monitoring:
+    image: backend-image-monitoring
+    build:
+      context: ./demoM
+      dockerfile: Dockerfile
+    container_name: monitoring
+    environment:
+      - DB_IP=monitoring-db
+      - DB_PORT=5432
+      - DB_DBNAME=monitoring
+      - DB_USER=postgres
+      - DB_PASSWORD=root
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=admin
+      - RABBITMQ_PASSWORD=admin123
+      - QUEUE_DEVICES=queueDevices
+      - QUEUE_MEASUREMENTS=queueMeasurements
+      - SYNC_EXCHANGE=sync.exchange
+
+      - PORT=8084
+    ports:
+      - "8084:8084"
+    depends_on:
+      monitoring-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - demo_net
+    restart: on-failure
+
+  frontend:
+    build:
+      context: ./frontend/frontend-sd
+      dockerfile: Dockerfile
+    container_name: frontend
+    networks:
+      - demo_net
+    depends_on:
+      - people
+      - devices
+      - auth
+      - monitoring
+    restart: on-failure
+
+  chat-db:
+    image: postgres:latest
+    container_name: chat-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: chat
+    ports:
+      - "5437:5432"
+    networks:
+      - demo_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  chat:
+    build:
+      context: ./demoC
+      dockerfile: Dockerfile
+    container_name: chat
+    environment:
+      - DB_IP=chat-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=root
+      - DB_DBNAME=chat
+      - RABBITMQ_HOST=rabbitmq
+      - PORT=8085
+      - GEMINI_API_KEY=AICI_PUNE_API_KEY
+    ports:
+      - "8085:8085"
+    depends_on:
+      chat-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - demo_net
+
+volumes:
+  people-data:
+  devices-data:
+  auth-data:
+  monitoring-data:
+  chat-data:
+    
+
+networks:
+  demo_net:

@@ -1,0 +1,87 @@
+# ds2025_people/dynamic/dynamic.yml
+http:
+  routers:
+    frontend:
+      rule: "Host(`localhost`)"
+      entryPoints:
+        - web
+      service: frontend-service
+
+    people-router:
+      rule: "Host(`localhost`) && PathPrefix(`/people`)"
+      entryPoints:
+        - web
+      service: people-service
+
+
+    devices-router:
+      rule: "Host(`localhost`) && PathPrefix(`/devices`)"
+      entryPoints:
+        - web
+      service: devices-service
+
+
+    auth-router:
+      rule: "Host(`localhost`) && PathPrefix(`/auth`)"
+      entryPoints:
+        - web
+      service: auth-service
+
+
+    monitoring-router:
+      rule: "Host(`localhost`) && PathPrefix(`/monitoring`)"
+      entryPoints:
+        - web
+      service: monitoring-service
+
+    chat-router:
+      rule: "Host(`localhost`) && PathPrefix(`/chat`)"
+      entryPoints:
+        - web
+      middlewares:
+        - strip-chat-prefix
+      service: chat-service
+
+
+  middlewares:
+    strip-api-prefix:
+      stripPrefix:
+        prefixes:
+          - "/api"
+
+    strip-chat-prefix:
+      stripPrefix:
+        prefixes:
+          - "/chat"
+
+
+  services:
+    frontend-service:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:3000"
+
+    people-service:
+      loadBalancer:
+        servers:
+          - url: "http://people:8080"
+
+    devices-service:
+      loadBalancer:
+        servers:
+          - url: "http://devices:8081"
+
+    auth-service:
+      loadBalancer:
+        servers:
+          - url: "http://auth:8082"
+
+    monitoring-service:
+      loadBalancer:
+        servers:
+          - url: "http://monitoring:8084"
+
+    chat-service:
+      loadBalancer:
+        servers:
+          - url: "http://chat:8085"

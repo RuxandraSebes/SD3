@@ -1,0 +1,4 @@
+-- Database initialization for Monitoring Service
+-- This file is mounted to /docker-entrypoint-initdb.d/init.sql
+-- The 'monitoring' database is created via POSTGRES_DB environment variable.
+-- Tables will be created by Hibernate (ddl-auto=update).
