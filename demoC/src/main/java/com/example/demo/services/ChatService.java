@@ -21,6 +21,7 @@ public class ChatService {
     }
 
     private void initializeRules() {
+        rules.put("hello", "Hello! How can I help you?");
         rules.put("hours", "Our support hours are 9 AM to 5 PM, Monday to Friday.");
         rules.put("location", "We are located at 123 Smart City Blvd.");
         rules.put("price", "Smart devices start at $99. Check the dashboard for details.");
