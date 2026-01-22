@@ -16,7 +16,6 @@ public class SimulationService {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    // CRITICAL FIX: Use the correct queue name
     @Value("${rabbitmq.queue.measurements:queueMeasurements}")
     private String MEASUREMENTS_QUEUE;
 
@@ -31,22 +30,18 @@ public class SimulationService {
 
         Random random = new Random();
 
-        // Start time
         LocalDateTime currentTime = LocalDateTime.now();
 
-        // 24 hours / 10 minutes = 144 measurements
         int totalMeasurements = 24 * 6;
         int measurementCount = 0;
 
         while (measurementCount < totalMeasurements) {
             try {
-                // Wait 0.1 seconds (simulate 10 minutes)
-                Thread.sleep(1000);
+                Thread.sleep(100);
 
-                // Advance simulated time
+
                 currentTime = currentTime.plusMinutes(10);
 
-                // Calculate consumption
                 double consumption = calculateConsumption(currentTime, random);
 
                 MeasurementMessage data = new MeasurementMessage(
@@ -54,11 +49,10 @@ public class SimulationService {
                         consumption,
                         currentTime);
 
-                // Send to RabbitMQ
+
                 rabbitTemplate.convertAndSend(MEASUREMENTS_QUEUE, data);
                 measurementCount++;
 
-                // Log output
                 String timePeriod = getTimePeriod(currentTime.getHour());
                 System.out.printf(
                         "[%s] %s | Value: %6.2f kWh | Sent: %d/%d%n",
@@ -104,7 +98,6 @@ public class SimulationService {
             baseLoad = 1.0 + (random.nextDouble() * 0.5);
         }
 
-        // Add small fluctuations
         double fluctuation = (random.nextDouble() - 0.5) * 0.2;
         return Math.max(0, baseLoad + fluctuation);
     }

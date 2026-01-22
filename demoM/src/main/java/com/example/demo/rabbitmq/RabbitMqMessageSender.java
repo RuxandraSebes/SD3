@@ -20,7 +20,7 @@ public class RabbitMqMessageSender {
     public void sendOverconsumptionAlert(OverconsumptionMessage message) {
         LOGGER.info("Sending overconsumption alert for user {} and device {}", message.getUserId(),
                 message.getDeviceId());
-        // Send to a queue that the Chat/Support service will listen to
+
         rabbitTemplate.convertAndSend("queueNotifications", message);
     }
 }

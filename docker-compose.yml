@@ -272,7 +272,7 @@ services:
       - DB_DBNAME=chat
       - RABBITMQ_HOST=rabbitmq
       - PORT=8085
-      - GEMINI_API_KEY=AICI_PUNE_API_KEY
+      - GEMINI_API_KEY=AIzaSyBu_s2gW0WvYOEf1ZdxuiAEKp1s6zui-q0
     ports:
       - "8085:8085"
     depends_on:

@@ -22,21 +22,15 @@ public class MessageListener {
         LOGGER.info("Received overconsumption alert for user {}: device={}, value={}",
                 alert.getUserId(), alert.getDeviceId(), alert.getConsumption());
 
-        // Create a chat message to send via WebSocket
         ChatMessage notification = new ChatMessage(
                 "System",
                 "ALERT: Device " + alert.getDeviceId() + " is overconsuming! Current: " + alert.getConsumption()
                         + " kWh, Limit: " + alert.getMaxLimit() + " kWh",
                 ChatMessage.MessageType.ALERT);
 
-        // Send to a specific topic for notifications
-        // We can send to /topic/notifications or a more specific user one
-        // /user/{userId}/queue/notifications
-        // For simplicity, let's go with /topic/notifications for now, or /topic/alerts
 
         messagingTemplate.convertAndSend("/topic/alerts", notification);
 
-        // Also send to the specific user's private topic
         if (alert.getUserId() != null) {
             messagingTemplate.convertAndSend("/topic/user." + alert.getUserId(), notification);
         }

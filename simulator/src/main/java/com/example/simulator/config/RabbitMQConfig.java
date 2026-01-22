@@ -12,8 +12,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    // CRITICAL FIX: Use the same queue name as Monitoring Service
-    // Changed from "sensor-data-queue" to "queueMeasurements"
     @Value("${rabbitmq.queue.measurements:queueMeasurements}")
     private String MEASUREMENTS_QUEUE;
 

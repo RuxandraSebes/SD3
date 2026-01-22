@@ -1,24 +1,15 @@
-// frontend/components/MonitorDeviceModal.jsx (UPDATED CONTENT)
-
 import React, { useState, useEffect, useMemo } from "react";
 import { getDeviceMeasurements } from "../api/monitoringApi";
-import EnergyChart from "./EnergyChart"; // NOU: Import EnergyChart
+import EnergyChart from "./EnergyChart"; 
 
-// Functie de agregare a datelor brute (value, timestamp) pe ore
 const aggregateHourlyData = (measurements) => {
     const hourlyDataMap = new Map();
 
     measurements.forEach(item => {
-        // Presupunem ca timestamp-ul este in format ISO-8601 (ex: "2025-12-11T16:00:00")
         const date = new Date(item.timestamp);
 
-        // Cream cheia de agregare pe ZI si ORA (ex: "2025-12-11T16")
-        // Trebuie sa folosim toISOString pentru a gestiona fusul orar corespunzator UTC,
-        // dar pentru o implementare simplificata vom folosi un substring de data/ora.
-
-        // Luam doar data si ora completa (YYYY-MM-DDTHH) pentru a grupa pe ore
-        const yearMonthDayHour = date.toISOString().substring(0, 13); // Ex: "2025-12-11T16"
-        const hourKey = yearMonthDayHour + ':00:00.000Z'; // Cheia finala: "2025-12-11T16:00:00.000Z"
+        const yearMonthDayHour = date.toISOString().substring(0, 13); 
+        const hourKey = yearMonthDayHour + ':00:00.000Z';
 
         const currentData = hourlyDataMap.get(hourKey) || {
             hourTimestamp: hourKey,
@@ -29,7 +20,6 @@ const aggregateHourlyData = (measurements) => {
         hourlyDataMap.set(hourKey, currentData);
     });
 
-    // Convertim Map-ul inapoi in array
     return Array.from(hourlyDataMap.values());
 };
 
@@ -58,22 +48,18 @@ export default function MonitorDeviceModal({ deviceId, deviceName, onClose }) {
             loadMeasurements();
         }
 
-        // Reîncărcăm datele la fiecare 5 secunde pentru "real-time"
         const intervalId = setInterval(loadMeasurements, 5000);
 
-        return () => clearInterval(intervalId); // Curățăm intervalul la închiderea modalului
+        return () => clearInterval(intervalId); 
     }, [deviceId]);
 
-    // Agregam datele doar cand se schimba measurements
     const aggregatedData = useMemo(() => aggregateHourlyData(measurements), [measurements]);
 
 
     if (!deviceId) return null;
 
     return (
-        // Modal Backdrop (Rămâne neschimbat)
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            {/* Modal Content */}
             <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-2xl mx-4">
                 <div className="flex justify-between items-center mb-4 border-b pb-2">
                     <h2 className="text-2xl font-bold text-gray-800">Monitoring: {deviceName}</h2>
@@ -88,7 +74,6 @@ export default function MonitorDeviceModal({ deviceId, deviceName, onClose }) {
 
                 {!loading && !error && aggregatedData.length > 0 && (
                     <div className="mt-4">
-                        {/* FOLOSIM NOUA COMPONENTĂ DE GRAFIC CU DATELE AGREGATE */}
                         <EnergyChart data={aggregatedData} />
 
                         <div className="mt-4 text-xs text-gray-500 text-center">

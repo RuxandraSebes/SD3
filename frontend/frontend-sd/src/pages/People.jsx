@@ -31,18 +31,15 @@ export default function People() {
       return;
     }
     if (form.id) {
-      // Update existing person
       await updatePerson(form);
     } else {
-      // For creating a new person, use Auth Service register endpoint
-      // This ensures the user is created in Auth DB (login) AND People DB AND Device DB (sync)
-      // We use the name as the username and default password "1234"
+  
       const generatedUsername = form.name;
 
       const authPayload = {
         username: generatedUsername,
         password: "1234",
-        role: "user", // Default role
+        role: "user", 
         name: form.name,
         age: parseInt(form.age, 10),
         address: form.address
@@ -53,8 +50,6 @@ export default function People() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // Include token if Admin is logged in, though Register is usually public, 
-            // but we might want to ensure we are creating it as "User" role for clients
             "Authorization": `Bearer ${sessionStorage.getItem("jwt")}`
           },
           body: JSON.stringify(authPayload)

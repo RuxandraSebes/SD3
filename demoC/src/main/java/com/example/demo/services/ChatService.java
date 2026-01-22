@@ -36,21 +36,18 @@ public class ChatService {
     public ChatMessage processMessage(ChatMessage message) {
         String content = message.getContent().toLowerCase();
 
-        // 1. Check for Admin/Human request
         if (content.contains("admin") || content.contains("human")) {
             LOGGER.info("User {} requested admin intervention.", message.getSender());
             return new ChatMessage("System", "An administrator has been notified and will join the chat shortly.",
                     ChatMessage.MessageType.CHAT);
         }
 
-        // 2. Check Rules
         for (Map.Entry<String, String> entry : rules.entrySet()) {
             if (content.contains(entry.getKey())) {
                 return new ChatMessage("AutoBot", entry.getValue(), ChatMessage.MessageType.CHAT);
             }
         }
 
-        // 3. Fallback to AI
         String aiResponse = geminiService.generateResponse(content);
         return new ChatMessage("AI-Assistant", aiResponse, ChatMessage.MessageType.CHAT);
     }

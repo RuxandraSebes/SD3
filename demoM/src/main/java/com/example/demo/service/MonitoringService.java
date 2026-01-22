@@ -99,7 +99,6 @@ public class MonitoringService {
 
         Device device = deviceOpt.get();
 
-        // Overconsumption Check
         if (device.getMaxConsumption() != null && message.getValue() > device.getMaxConsumption()) {
             LOGGER.warn("OVERCONSUMPTION detected for device {}: value={}, limit={}",
                     device.getDeviceId(), message.getValue(), device.getMaxConsumption());

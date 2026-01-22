@@ -46,18 +46,6 @@ public class PersonService {
         this.rabbitMqMessageSender = rabbitMqMessageSender;
     }
 
-    // public List<PersonDetailsDTO> findPersons(UserAuthInfo userAuthInfo) {
-    // if (userAuthInfo.isAdmin()) {
-    // return personRepository.findAll().stream()
-    // .map(PersonBuilder::toPersonDetailsDTO)
-    // .collect(Collectors.toList());
-    // } else {
-    // Person person = personRepository.findByAuthUserId(userAuthInfo.getUserId())
-    // .orElseThrow(() -> new ResourceNotFoundException("Person linked to Auth ID: "
-    // + userAuthInfo.getUserId()));
-    // return List.of(PersonBuilder.toPersonDetailsDTO(person));
-    // }
-    // }
     public List<PersonDetailsDTO> findPersons(UserAuthInfo userAuthInfo) {
 
         if (userAuthInfo == null) {
@@ -91,24 +79,6 @@ public class PersonService {
         return PersonBuilder.toPersonDetailsDTO(person);
     }
 
-    // public PersonDetailsDTO findPersonById(UUID id, UserAuthInfo userAuthInfo) {
-    // PersonDetailsDTO person = findPersonById(id);
-    //
-    // if (userAuthInfo.isUser()) {
-    // Person userPerson =
-    // personRepository.findByAuthUserId(userAuthInfo.getUserId())
-    // .orElseThrow(() -> new ResourceNotFoundException("Person linked to Auth ID: "
-    // + userAuthInfo.getUserId()));
-    //
-    // if (!person.getId().equals(userPerson.getId())) {
-    // LOGGER.error("User with Auth ID {} attempted to access person with id {}",
-    // userAuthInfo.getUserId(), id);
-    // throw new ResourceNotFoundException("Person with id: " + id);
-    // }
-    // }
-    //
-    // return person;
-    // }
 
     public PersonDetailsDTO findPersonById(UUID id, UserAuthInfo userAuthInfo) {
         PersonDetailsDTO person = findPersonById(id);
@@ -139,23 +109,6 @@ public class PersonService {
         return person.getId();
     }
 
-    // public UUID insertFromAuth(PersonAuthRequestDTO authRequestDTO) {
-    // Person person = PersonBuilder.toEntity(authRequestDTO);
-    // person = personRepository.save(person);
-    // LOGGER.debug("Person linked to Auth ID {} was inserted in db",
-    // authRequestDTO.getAuthUserId());
-    // return person.getId();
-    // }
-    // public UUID insertFromAuth(PersonAuthRequestDTO authRequestDTO) {
-    // Person person = PersonBuilder.toEntity(authRequestDTO);
-    // person = personRepository.save(person);
-    //
-    // rabbitMqMessageSender.sendPersonCreated(authRequestDTO);
-    //
-    // LOGGER.debug("Person linked to Auth ID {} was inserted in db",
-    // authRequestDTO.getAuthUserId());
-    // return person.getId();
-    // }
 
     public UUID insertFromAuth(PersonAuthRequestDTO dto) {
         Optional<Person> existing = personRepository.findByAuthUserId(dto.getAuthUserId());

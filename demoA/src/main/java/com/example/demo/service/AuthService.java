@@ -52,11 +52,6 @@ public class AuthService {
                     request.getAddress()
             );
 
-//            ResponseEntity<String> response = restTemplate.postForEntity(
-//                    peopleServiceUrl,
-//                    peopleRequest,
-//                    String.class
-//            );
 
             rabbitMqMessage.sendToPeopleQueue(peopleRequest);
             return "User registered successfully in Auth and People Service!";

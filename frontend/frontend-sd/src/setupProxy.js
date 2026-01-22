@@ -28,7 +28,7 @@ export default function (app) {
   app.use(
       "/monitoring",
       createProxyMiddleware({
-          target: "http://localhost", // Monitoring Service
+          target: "http://localhost", 
           changeOrigin: true,
       })
   );

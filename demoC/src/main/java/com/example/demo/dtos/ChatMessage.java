@@ -3,11 +3,11 @@ package com.example.demo.dtos;
 import java.time.LocalDateTime;
 
 public class ChatMessage {
-    private String sender; // Username for display
-    private String senderId; // Auth User ID as string
+    private String sender;
+    private String senderId;
     private String content;
     private MessageType type;
-    private String to; // Receiver userId (Auth ID) as string
+    private String to;
     private String timestamp;
 
     public ChatMessage() {

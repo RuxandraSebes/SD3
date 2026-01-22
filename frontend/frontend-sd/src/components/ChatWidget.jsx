@@ -9,7 +9,7 @@ const ChatWidget = ({ isAdminView = false }) => {
     const [input, setInput] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [connected, setConnected] = useState(false);
-    const [activeChatUser, setActiveChatUser] = useState(null); // For admin to pick who to reply to
+    const [activeChatUser, setActiveChatUser] = useState(null); 
     const [notifications, setNotifications] = useState([]);
     const [showAlertModal, setShowAlertModal] = useState(false);
     const [activeAlert, setActiveAlert] = useState(null);
@@ -29,7 +29,7 @@ const ChatWidget = ({ isAdminView = false }) => {
                 setConnected(true);
                 console.log('Connected to WebSocket: ' + frame);
 
-                // Subscribe to public chat
+                
                 if (!isAdmin) {
                     client.subscribe('/topic/public', (message) => {
                         const msg = JSON.parse(message.body);
@@ -46,7 +46,6 @@ const ChatWidget = ({ isAdminView = false }) => {
                     setNotifications(prev => [...prev, msg]);
                 });
 
-                // Subscribe to private messages/notifications for current user
                 if (user && user.id) {
                     client.subscribe(`/topic/user.${user.id}`, (message) => {
                         const msg = JSON.parse(message.body);
@@ -57,12 +56,10 @@ const ChatWidget = ({ isAdminView = false }) => {
                             setShowAlertModal(true);
                             setNotifications(prev => [...prev, msg]);
                         } else {
-                            // Other types like JOIN/LEAVE could be handled if needed
                         }
                     });
                 }
 
-                // If admin, subscribe to admin topic
                 if (isAdmin) {
                     client.subscribe('/topic/admin', (message) => {
                         const msg = JSON.parse(message.body);
@@ -72,7 +69,6 @@ const ChatWidget = ({ isAdminView = false }) => {
                     });
                 }
 
-                // Register user
                 client.publish({
                     destination: '/app/chat.addUser',
                     body: JSON.stringify({ sender: currentUser, type: 'JOIN' })
@@ -128,7 +124,6 @@ const ChatWidget = ({ isAdminView = false }) => {
 
     return (
         <div className="chat-container" style={widgetStyle(isOpen)}>
-            {/* Header */}
             <div
                 className="chat-header"
                 onClick={() => setIsOpen(!isOpen)}
@@ -141,7 +136,6 @@ const ChatWidget = ({ isAdminView = false }) => {
             {isOpen && (
                 <div className="chat-body" style={{ display: 'flex', flexDirection: 'column', height: '400px', backgroundColor: '#f8fafc' }}>
 
-                    {/* Chat Messages */}
                     <div
                         ref={scrollRef}
                         style={{ flex: 1, overflowY: 'auto', padding: '10px' }}
@@ -190,7 +184,6 @@ const ChatWidget = ({ isAdminView = false }) => {
                         ))}
                     </div>
 
-                    {/* Admin User Selection */}
                     {isAdminView ? (
                         <div style={{ padding: '8px', backgroundColor: '#e2e8f0', borderTop: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <span style={{ fontSize: '11px', fontWeight: 'bold' }}>
@@ -211,7 +204,6 @@ const ChatWidget = ({ isAdminView = false }) => {
                         </div>
                     )}
 
-                    {/* Input Area */}
                     <form onSubmit={sendMessage} style={{ display: 'flex', padding: '10px', borderTop: '1px solid #e2e8f0' }}>
                         <input
                             type="text"
@@ -229,7 +221,6 @@ const ChatWidget = ({ isAdminView = false }) => {
                     </form>
                 </div>
             )}
-            {/* Overconsumption Alert Modal */}
             {showAlertModal && activeAlert && (
                 <div style={modalOverlayStyle}>
                     <div style={modalContentStyle}>

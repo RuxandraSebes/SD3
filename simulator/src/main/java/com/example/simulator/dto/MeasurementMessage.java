@@ -16,7 +16,6 @@ public class MeasurementMessage {
         this.timestamp = timestamp;
     }
 
-    // Getters and Setters
     public UUID getDeviceId() { return deviceId; }
     public void setDeviceId(UUID deviceId) { this.deviceId = deviceId; }
 

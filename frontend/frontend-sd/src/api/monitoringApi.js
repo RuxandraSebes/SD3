@@ -1,4 +1,3 @@
-// frontend/frontend-sd/src/api/monitoringApi.js
 const BASE_URL = "/monitoring";
 
 const getAuthHeaders = () => {
@@ -14,7 +13,6 @@ export const getDeviceMeasurements = async (deviceId, startDate = null, endDate 
     try {
         let url = `${BASE_URL}/devices/${deviceId}/measurements`;
 
-        // Add query parameters if provided
         const params = new URLSearchParams();
         if (startDate) params.append('startDate', startDate);
         if (endDate) params.append('endDate', endDate);
@@ -63,7 +61,6 @@ export const getAllDeviceUuids = async () => {
     }
 };
 
-// Health check function
 export const checkMonitoringHealth = async () => {
     try {
         const res = await fetch(`${BASE_URL}/health`);

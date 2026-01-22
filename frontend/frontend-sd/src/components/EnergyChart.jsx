@@ -1,4 +1,3 @@
-// frontend/components/EnergyChart.jsx (NEW FILE)
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -7,11 +6,9 @@ class EnergyChart extends React.Component {
         const { data } = this.props;
 
         const chartData = data.map(item => ({
-            // Transformam timestamp-ul inapoi in format 'HH:00'
             hour: new Date(item.hourTimestamp).getHours() + ':00',
             consumption: item.totalConsumption
         })).sort((a, b) => {
-            // Sortam numeric dupa ora (ex: 10 inainte de 11, nu alfabetic)
             return parseInt(a.hour) - parseInt(b.hour);
         });
 

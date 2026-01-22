@@ -3,13 +3,12 @@ import { useParams } from "react-router-dom";
 import { getDeviceMeasurements } from "../api/monitoringApi";
 import EnergyChart from "../components/EnergyChart";
 
-// Functie de agregare pe ore (copiata din Modal)
+
 const aggregateHourlyData = (measurements) => {
     const hourlyDataMap = new Map();
 
     measurements.forEach(item => {
         const date = new Date(item.timestamp);
-        // Agregare simplificata: YYYY-MM-DDTHH
         const yearMonthDayHour = date.toISOString().substring(0, 13);
         const hourKey = yearMonthDayHour + ':00:00.000Z';
 
@@ -32,8 +31,6 @@ export default function MonitorDevice() {
     const [error, setError] = useState(null);
 
     const loadMeasurements = async () => {
-        // Nu setam loading la fiecare refresh pentru a evita flicker-ul chart-ului
-        // Doar la initializare daca nu avem date
         if (measurements.length === 0) setLoading(true);
 
         setError(null);
@@ -42,8 +39,6 @@ export default function MonitorDevice() {
             setMeasurements(data);
         } catch (err) {
             console.error("Monitoring data fetch error:", err);
-            // Don't show error on every poll if it fails once, maybe just log it
-            // setError(`Failed to load data for device ${deviceId}.`);
         } finally {
             setLoading(false);
         }
@@ -53,7 +48,6 @@ export default function MonitorDevice() {
         if (deviceId) {
             loadMeasurements();
         }
-        // Refresh every 5s
         const intervalId = setInterval(loadMeasurements, 5000);
         return () => clearInterval(intervalId);
     }, [deviceId]);

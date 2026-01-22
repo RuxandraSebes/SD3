@@ -2,7 +2,7 @@ package com.example.demo.dtos;
 
 import java.util.UUID;
 
-public class OverconsumptionMessage {
+public class  OverconsumptionMessage {
     private Long userId;
     private UUID deviceId;
     private Double consumption;
